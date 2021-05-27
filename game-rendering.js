@@ -8,10 +8,15 @@ import {
 
 /* Select elements of use */
 const board = document.querySelector(".board");
+const subtext = document.querySelector(".subtext");
 
 /* Set number of mines and size of board */
 const boardSize = 10;
-const numberOfMines = 10;
+const numberOfMines = 3;
+let counter = numberOfMines;
+
+/* Set the number of mines left in the board */
+subtext.textContent = `Mines Left: ${counter}`;
 
 // Create array of tiles based on the board size
 createTilesArray(boardSize);
@@ -47,8 +52,12 @@ boardTilesArray.forEach((row) =>
       e.preventDefault();
       if (tile.status === TILE_STATUS.hidden) {
         tile.status = TILE_STATUS.marked;
+        counter--;
+        subtext.textContent = `Mines Left: ${counter}`;
       } else if (tile.status === TILE_STATUS.marked) {
         tile.status = TILE_STATUS.hidden;
+        counter++;
+        subtext.textContent = `Mines Left: ${counter}`;
       }
     });
   })
@@ -60,22 +69,66 @@ boardTilesArray.forEach((row) =>
     tile.tileElement.addEventListener("click", (e) => {
       if (tile.status === TILE_STATUS.hidden) {
         if (tile.mine === true) {
-          tile.status = TILE_STATUS.mine;
+          boardTilesArray.forEach((row) =>
+            row.forEach((t) => {
+              if (t.mine === true) t.status = TILE_STATUS.mine;
+              subtext.textContent = `YOU LOSE!`;
+              board.addEventListener(
+                "click",
+                (e) => e.stopImmediatePropagation(),
+                { capture: true }
+              );
+              board.addEventListener(
+                "contextmenu",
+                (e) => e.stopImmediatePropagation(),
+                { capture: true }
+              );
+            })
+          );
         } else {
-          const adjacentCells = getAdjacentCells(tile);
-          if (adjacentCells.filter((tile) => tile.mine === true).length > 0) {
-            tile.status = TILE_STATUS.number;
-            tile.tileElement.textContent = adjacentCells.filter(
-              (tile) => tile.mine === true
-            ).length;
-          } else {
-            adjacentCells.forEach((adjacentCell) => revealTiles(adjacentCell));
-          }
+          revealTiles(tile);
+          iWon();
         }
       }
     });
   })
 );
+
+// Increment and decrement number of mines left
+
+// Set up for when you
+
+function iWon() {
+  const tilesStillHiddenOrMarked = [];
+
+  boardTilesArray.forEach((row) =>
+    row.forEach((t) => {
+      if (t.status === TILE_STATUS.hidden || t.status === TILE_STATUS.marked) {
+        tilesStillHiddenOrMarked.push(t);
+      }
+    })
+  );
+
+  if (
+    tilesStillHiddenOrMarked.length === numberOfMines &&
+    tilesStillHiddenOrMarked.every((tile) => tile.mine === true)
+  ) {
+    boardTilesArray.forEach((row) =>
+      row.forEach((t) => {
+        if (t.mine === true) t.status = TILE_STATUS.mine;
+        subtext.textContent = `YOU WIN!`;
+        board.addEventListener("click", (e) => e.stopImmediatePropagation(), {
+          capture: true,
+        });
+        board.addEventListener(
+          "contextmenu",
+          (e) => e.stopImmediatePropagation(),
+          { capture: true }
+        );
+      })
+    );
+  }
+}
 
 function revealTiles(tile) {
   if (tile.status === TILE_STATUS.hidden && tile.mine === false) {
@@ -83,6 +136,11 @@ function revealTiles(tile) {
     if (otherAdjacentTiles.filter((t) => t.mine === true).length === 0) {
       tile.status = TILE_STATUS.number;
       otherAdjacentTiles.forEach((inceptionTile) => revealTiles(inceptionTile));
+    } else {
+      tile.status = TILE_STATUS.number;
+      tile.tileElement.textContent = otherAdjacentTiles.filter(
+        (t) => t.mine === true
+      ).length;
     }
   }
 }

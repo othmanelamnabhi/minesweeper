@@ -41,11 +41,7 @@ export function generateMines(numberOfMines, boardSize) {
       x: getRandomIntInclusive(boardSize),
       y: getRandomIntInclusive(boardSize),
     };
-    if (
-      !minePositions.some((p) => {
-        comparePositions(p, position);
-      })
-    ) {
+    if (!minePositions.some((p) => comparePositions(p, position))) {
       minePositions.push(position);
     }
   }
@@ -53,9 +49,9 @@ export function generateMines(numberOfMines, boardSize) {
 }
 
 /* function to generate random integers to use for mine locations */
-function getRandomIntInclusive(boardSize) {
+function getRandomIntInclusive(size) {
   const min = 1;
-  const max = Math.floor(boardSize);
+  const max = size;
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
