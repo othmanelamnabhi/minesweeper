@@ -50,7 +50,6 @@ boardTilesArray.forEach((row) =>
       } else if (tile.status === TILE_STATUS.marked) {
         tile.status = TILE_STATUS.hidden;
       }
-      console.log(boardTilesArray);
     });
   })
 );
@@ -63,12 +62,44 @@ boardTilesArray.forEach((row) =>
         if (tile.mine === true) {
           tile.status = TILE_STATUS.mine;
         } else {
-          tile.status = TILE_STATUS.number;
+          const adjacentCells = getAdjacentCells(tile);
+          if (adjacentCells.filter((tile) => tile.mine === true).length > 0) {
+            tile.status = TILE_STATUS.number;
+            tile.tileElement.textContent = adjacentCells.filter(
+              (tile) => tile.mine === true
+            ).length;
+          } else {
+            adjacentCells.forEach((adjacentCell) => revealTiles(adjacentCell));
+          }
         }
       }
     });
   })
 );
 
-console.log(boardTilesArray);
-console.log(minePositions);
+function revealTiles(tile) {
+  if (tile.status === TILE_STATUS.hidden && tile.mine === false) {
+    const otherAdjacentTiles = getAdjacentCells(tile);
+    if (otherAdjacentTiles.filter((t) => t.mine === true).length === 0) {
+      tile.status = TILE_STATUS.number;
+      otherAdjacentTiles.forEach((inceptionTile) => revealTiles(inceptionTile));
+    }
+  }
+}
+
+function getAdjacentCells(tile) {
+  const adjacentCellsArray = [];
+  for (let x = tile.x - 1; x <= tile.x + 1; x++) {
+    for (let y = tile.y - 1; y <= tile.y + 1; y++) {
+      boardTilesArray.forEach((row) =>
+        row.forEach((t) => {
+          if (comparePositions(t, { x, y })) {
+            adjacentCellsArray.push(t);
+          }
+        })
+      );
+    }
+  }
+
+  return adjacentCellsArray;
+}

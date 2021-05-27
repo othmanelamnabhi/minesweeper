@@ -63,6 +63,3 @@ function getRandomIntInclusive(boardSize) {
 export function comparePositions(a, b) {
   return a.x === b.x && a.y === b.y;
 }
-
-/* Create right click action */
-/* Create left click action */
