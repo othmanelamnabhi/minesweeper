@@ -2,6 +2,7 @@
 # Javascript Simplified: Minesweeper Game
 
 On this project from the [Javascript Simplified](https://javascriptsimplified.com) course, I got to make the Minesweeper.
+
 This one was pretty challenging... and I'm not gonna lie, I did peak at the answer given on the course regarding the recursive part of the project (uncovering all the safe tiles nearby)
 
 
